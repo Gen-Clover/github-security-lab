@@ -22,6 +22,7 @@ jobs:
         run: |
           echo "Testing issue write access..."
           gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
             --title "GITHUB_TOKEN write test" \
             --body "This should NOT be created."
         env:
