@@ -1,0 +1,28 @@
+name: Token Permission Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Test read access
+        run: |
+          echo "Testing repository read access..."
+          gh api repos/$GITHUB_REPOSITORY
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Test write access
+        run: |
+          echo "Testing issue write access..."
+          gh issue create \
+            --title "GITHUB_TOKEN write test" \
+            --body "This should NOT be created."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
