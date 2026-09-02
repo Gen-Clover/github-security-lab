@@ -5,32 +5,71 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   test:
+    name: Test GitHub Token Permissions
     runs-on: ubuntu-latest
 
+    environment: production
+
     steps:
-      - name: Test read access
+      - name: Set up job
+        uses: actions/checkout@v4
+
+      - name: Test repository read access
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           echo "Testing repository read access..."
-          gh api repos/$GITHUB_REPOSITORY
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          REPO_INFO=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${{ github.repository }}")
+
+          echo "Repository read access successful."
+          echo "$REPO_INFO" | jq '{name, full_name, private, default_branch}'
 
       - name: Test secret access
-        run: |
-          echo "Secret is available to the workflow:"
-          echo "$LAB_TEST_SECRET"
         env:
           LAB_TEST_SECRET: ${{ secrets.LAB_TEST_SECRET }}
+        run: |
+          echo "Testing secret access..."
+
+          if [ -n "$LAB_TEST_SECRET" ]; then
+            echo "Secret is available to the workflow."
+            echo "Secret value: ***"
+          else
+            echo "Secret is NOT available to the workflow."
+            exit 1
+          fi
 
       - name: Test write access
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           echo "Testing issue write access..."
-          gh issue create \
-            --repo "$GITHUB_REPOSITORY" \
-            --title "GITHUB_TOKEN write test" \
-            --body "This should NOT be created."
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          ISSUE_URL=$(gh issue create \
+            --repo "${{ github.repository }}" \
+            --title "GitHub Actions permission test" \
+            --body "Temporary issue created by the Token Permission Test workflow.")
+
+          echo "Issue created successfully:"
+          echo "$ISSUE_URL"
+
+          ISSUE_NUMBER=$(echo "$ISSUE_URL" | sed 's/.*\/issues\///')
+
+          echo "Closing test issue #$ISSUE_NUMBER..."
+
+          gh issue close "$ISSUE_NUMBER" \
+            --repo "${{ github.repository }}"
+
+          echo "Issue write access successful."
+
+      - name: Complete test
+        run: |
+          echo "===================================="
+          echo "All permission tests passed."
+          echo "===================================="
