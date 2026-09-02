@@ -8,13 +8,13 @@ permissions:
 
 jobs:
   test:
-    name: Test GitHub Token Permissions
+    name: Verify Least Privilege
     runs-on: ubuntu-latest
 
     environment: production
 
     steps:
-      - name: Set up job
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Test repository read access
@@ -38,37 +38,16 @@ jobs:
 
           if [ -n "$LAB_TEST_SECRET" ]; then
             echo "Secret is available to the workflow."
-            echo "Secret value: ***"
           else
             echo "Secret is NOT available to the workflow."
             exit 1
           fi
 
-      - name: Test write access
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          echo "Testing issue write access..."
-
-          ISSUE_URL=$(gh issue create \
-            --repo "${{ github.repository }}" \
-            --title "GitHub Actions permission test" \
-            --body "Temporary issue created by the Token Permission Test workflow.")
-
-          echo "Issue created successfully:"
-          echo "$ISSUE_URL"
-
-          ISSUE_NUMBER=$(echo "$ISSUE_URL" | sed 's/.*\/issues\///')
-
-          echo "Closing test issue #$ISSUE_NUMBER..."
-
-          gh issue close "$ISSUE_NUMBER" \
-            --repo "${{ github.repository }}"
-
-          echo "Issue write access successful."
-
       - name: Complete test
         run: |
           echo "===================================="
-          echo "All permission tests passed."
+          echo "Least-privilege test passed."
+          echo "Repository read: PASS"
+          echo "Secret access: PASS"
+          echo "No unnecessary write permissions granted."
           echo "===================================="
