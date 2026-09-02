@@ -1,11 +1,11 @@
-name: Token Permission Test
+name: Environment Secret Test
 
 on:
   workflow_dispatch:
 
 jobs:
   test:
-    name: Verify Least Privilege
+    name: Verify Environment Secret
     runs-on: ubuntu-latest
 
     environment: production
@@ -14,37 +14,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Test repository read access
+      - name: Test environment secret
         env:
-          GH_TOKEN: ${{ github.token }}
+          PRODUCTION_TEST_SECRET: ${{ secrets.PRODUCTION_TEST_SECRET }}
         run: |
-          echo "Testing repository read access..."
+          echo "Testing production environment secret..."
 
-          REPO_INFO=$(gh api \
-            -H "Accept: application/vnd.github+json" \
-            "/repos/${{ github.repository }}")
-
-          echo "Repository read access successful."
-          echo "$REPO_INFO" | jq '{name, full_name, private, default_branch}'
-
-      - name: Test secret access
-        env:
-          LAB_TEST_SECRET: ${{ secrets.LAB_TEST_SECRET }}
-        run: |
-          echo "Testing secret access..."
-
-          if [ -n "$LAB_TEST_SECRET" ]; then
-            echo "Secret is available to the workflow."
+          if [ -n "$PRODUCTION_TEST_SECRET" ]; then
+            echo "Production environment secret is available."
           else
-            echo "Secret is NOT available to the workflow."
+            echo "Production environment secret is NOT available."
             exit 1
           fi
 
       - name: Complete test
         run: |
           echo "===================================="
-          echo "Least-privilege test passed."
-          echo "Repository read: PASS"
-          echo "Secret access: PASS"
-          echo "Default token permissions: READ-ONLY"
+          echo "Environment secret test passed."
+          echo "Production environment is authorized."
+          echo "Environment secret is available."
           echo "===================================="
