@@ -18,6 +18,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Test secret access
+        run: |
+          echo "Secret is available to the workflow:"
+          echo "$LAB_TEST_SECRET"
+        env:
+          LAB_TEST_SECRET: ${{ secrets.LAB_TEST_SECRET }}
+
       - name: Test write access
         run: |
           echo "Testing issue write access..."
