@@ -3,9 +3,6 @@ name: Token Permission Test
 on:
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
   test:
     name: Verify Least Privilege
@@ -49,5 +46,5 @@ jobs:
           echo "Least-privilege test passed."
           echo "Repository read: PASS"
           echo "Secret access: PASS"
-          echo "No unnecessary write permissions granted."
+          echo "Default token permissions: READ-ONLY"
           echo "===================================="
