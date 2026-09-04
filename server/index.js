@@ -2,7 +2,7 @@ import express from "express";
 
 const app = express();
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.header("Access-Control-Allow-Origin", "https://test.genclover.com");
   next();
 });
 const port = process.env.PORT || 3001;

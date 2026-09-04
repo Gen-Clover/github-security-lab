@@ -7,7 +7,7 @@ function App() {
   const [time, setTime] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/hello")
+    fetch("https://gen-clover-backend-deployment-test.vercel.app/api/hello")
       .then(r => r.json())
       .then(data => { setMessage(data.message); setTime(data.time); })
       .catch(() => setMessage("Frontend is running; Node backend is not reachable."));
